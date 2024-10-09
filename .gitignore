@@ -1,0 +1,10 @@
+# Ignore Moodle data volumes
+moodle_data/
+moodle_moodledata/
+postgres_data/
+redis_data/
+
+# Ignore SSL certificates (if any)
+nginx/certs/
+
+# Ignore any other sensitive files
