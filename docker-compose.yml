@@ -48,7 +48,7 @@ services:
       - moodle_network
 
   postgres:
-    image: percona/percona-distribution-postgresql:16-multi
+    image: percona/percona-distribution-postgresql:16
     container_name: postgres
     environment:
       POSTGRES_USER: moodle
@@ -63,7 +63,7 @@ services:
       PMM_AGENT_CONFIG: "yes"
       PMM_AGENT_PRERUN_SCRIPT: "psql -U $POSTGRES_USER -d $POSTGRES_DB -c 'CREATE EXTENSION IF NOT EXISTS pg_stat_statements;'"
     volumes:
-      - ./postgresql/data:/data/db
+      - ./postgresql/data:/var/lib/postgresql/data
       - ./postgresql/conf.d/postgresql.conf:/etc/postgresql/postgresql.conf
       - ./postgresql/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
