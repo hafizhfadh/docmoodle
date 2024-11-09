@@ -15,7 +15,7 @@ services:
       - moodle_network
 
   moodle:
-    image: bitnami/moodle:4.1.5
+    image: bitnami/moodle:latest
     container_name: moodle
     environment:
       - MOODLE_DATABASE_TYPE=pgsql
@@ -25,7 +25,7 @@ services:
       - MOODLE_DATABASE_PASSWORD=moodlepass
       - MOODLE_DATABASE_NAME=moodle
       - ALLOW_EMPTY_PASSWORD=no
-      - MOODLE_SITE_URL=https://your-domain.com
+      - MOODLE_SITE_URL=https://nginx.docmoodle.orb.local
       - MOODLE_EXTRA_CONFIG_CONTENT=
         $CFG->session_handler_class = '\\core\\session\\redis';
         $CFG->session_redis_host = 'redis';
@@ -48,7 +48,7 @@ services:
       - moodle_network
 
   postgres:
-    image: percona/percona-distribution-postgresql:15
+    image: percona/percona-distribution-postgresql:16-multi
     container_name: postgres
     environment:
       POSTGRES_USER: moodle
@@ -63,11 +63,16 @@ services:
       PMM_AGENT_CONFIG: "yes"
       PMM_AGENT_PRERUN_SCRIPT: "psql -U $POSTGRES_USER -d $POSTGRES_DB -c 'CREATE EXTENSION IF NOT EXISTS pg_stat_statements;'"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./postgresql/data:/data/db
       - ./postgresql/conf.d/postgresql.conf:/etc/postgresql/postgresql.conf
       - ./postgresql/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - moodle_network
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 16G
 
   redis:
     image: redis:7
@@ -75,18 +80,23 @@ services:
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     volumes:
       - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
-      - redis_data:/data
+      - ./redis/data:/data
     networks:
       - moodle_network
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 8G
 
   pmm-server:
     image: percona/pmm-server:2
     container_name: pmm-server
     restart: always
     ports:
-      - '8083:80'  # Expose PMM Server web interface on port 8083
+      - '8083:80'
     volumes:
-      - pmm-data:/srv  # Data persistence for PMM Server
+      - pmm-data:/srv
     environment:
       - PMM_SERVER_ADMIN_USER=admin
       - PMM_SERVER_ADMIN_PASSWORD=admin
