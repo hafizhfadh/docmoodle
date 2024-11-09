@@ -1,8 +1,8 @@
 # Ignore Moodle data volumes
-moodle_data/
-moodle_moodledata/
-postgres_data/
-redis_data/
+moodle/data/
+moodle/moodledata/
+postgres/data/
+redis/data/
 
 # Ignore SSL certificates (if any)
 nginx/certs/
